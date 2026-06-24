@@ -14,6 +14,9 @@ local Executions = {}
 do
     local Path = "SweetieHub/Zero_Executions.txt"
     function Executions.Increment()
+        if getgenv()._ZeroExecCount then
+            return getgenv()._ZeroExecCount
+        end
         local Count = 0
         pcall(function()
             if isfile(Path) then
@@ -24,6 +27,7 @@ do
         pcall(function()
             writefile(Path, tostring(Count))
         end)
+        getgenv()._ZeroExecCount = Count
         return Count
     end
 end
