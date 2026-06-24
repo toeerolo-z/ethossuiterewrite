@@ -12,7 +12,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local Executions = {}
 do
-    local Path = "SweetieHub/Oxy_Executions.txt"
+    local Path = "SweetieHub/Zero_Executions.txt"
     function Executions.Increment()
         local Count = 0
         pcall(function()
@@ -48,10 +48,10 @@ local Theme = {
     Background = Color3.fromRGB(12, 12, 16),
     Panel = Color3.fromRGB(19, 19, 25),
     Stroke = Color3.fromRGB(34, 35, 43),
-    Accent = Color3.fromRGB(80, 144, 217),
-    AccentHover = Color3.fromRGB(87, 160, 237),
-    AccentClick = Color3.fromRGB(91, 170, 249),
-    AccentText = Color3.fromRGB(93, 139, 226),
+    Accent = Color3.fromRGB(255, 0, 85),
+    AccentHover = Color3.fromRGB(255, 31, 105),
+    AccentClick = Color3.fromRGB(255, 56, 122),
+    AccentText = Color3.fromRGB(255, 0, 85),
     ElementBackground = Color3.fromRGB(12, 12, 16),
     ElementStroke = Color3.fromRGB(31, 31, 39),
     Title = Color3.fromRGB(175, 175, 177),
@@ -521,6 +521,13 @@ end
 function Library:CreateWindow(Config)
     Config = Config or {}
 
+    if getgenv()._ZeroWindow then
+        pcall(function()
+            getgenv()._ZeroWindow:Unload()
+        end)
+        getgenv()._ZeroWindow = nil
+    end
+
     if not Config.GameName then
         pcall(function()
             Config.GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
@@ -528,7 +535,7 @@ function Library:CreateWindow(Config)
     end
 
     local Screen = Create("ScreenGui", {
-        Name = "Oxy",
+        Name = "Zero",
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false,
         IgnoreGuiInset = true,
@@ -590,7 +597,7 @@ function Library:CreateWindow(Config)
         TextColor3 = Color3.fromRGB(255, 255, 255),
         Size = UDim2.new(0, 0, 1, 0),
         AutomaticSize = Enum.AutomaticSize.X,
-        Text = Config.Title or "OXY",
+        Text = Config.Title or "ZERO",
     })
     Create("UIPadding", { PaddingLeft = UDim.new(0, 10), Parent = TitleLabel })
 
@@ -776,8 +783,8 @@ function Library:CreateWindow(Config)
 
     Self.ToggleKey = Config.ToggleKey or Enum.KeyCode.RightShift
     pcall(function()
-        if isfile("SweetieHub/Oxy_MenuKey.txt") then
-            local Saved = Enum.KeyCode[readfile("SweetieHub/Oxy_MenuKey.txt")]
+        if isfile("SweetieHub/Zero_MenuKey.txt") then
+            local Saved = Enum.KeyCode[readfile("SweetieHub/Zero_MenuKey.txt")]
             if Saved then
                 Self.ToggleKey = Saved
             end
@@ -800,6 +807,7 @@ function Library:CreateWindow(Config)
     end)
 
     Library.Window = Self
+    getgenv()._ZeroWindow = Self
     return Self
 end
 
@@ -856,6 +864,9 @@ function Window:Unload()
         NotifyHolder = nil
     end
     ActiveNotifs = {}
+    if getgenv()._ZeroWindow == self then
+        getgenv()._ZeroWindow = nil
+    end
     if self.Screen then
         self.Screen:Destroy()
     end
@@ -2635,8 +2646,8 @@ function Library:SetAccent(Color)
 end
 
 function Library:CreateSettingsTab(Window)
-    local ConfigFolder = "SweetieHub/Oxy_Configs"
-    local AutoloadPath = "SweetieHub/Oxy_Autoload.txt"
+    local ConfigFolder = "SweetieHub/Zero_Configs"
+    local AutoloadPath = "SweetieHub/Zero_Autoload.txt"
     pcall(function()
         if not isfolder(ConfigFolder) then
             makefolder(ConfigFolder)
@@ -2766,9 +2777,8 @@ function Library:CreateSettingsTab(Window)
     local Category = Window:AddCategory("SETTINGS")
     local Tab = Category:AddTab("Configuration")
 
-    local PremadeOrder = { "Oxy Blue", "Violet", "Crimson", "Emerald", "Amber", "Rose", "Cyan", "Mono" }
+    local PremadeOrder = { "Violet", "Crimson", "Emerald", "Amber", "Rose", "Cyan", "Mono" }
     local PremadeThemes = {
-        ["Oxy Blue"] = Color3.fromRGB(80, 144, 217),
         ["Violet"] = Color3.fromRGB(138, 121, 231),
         ["Crimson"] = Color3.fromRGB(206, 51, 66),
         ["Emerald"] = Color3.fromRGB(56, 186, 91),
@@ -2779,14 +2789,14 @@ function Library:CreateSettingsTab(Window)
     }
 
     local ThemeBox = Tab:AddGroupbox("Theme")
-    local AccentPicker = ThemeBox:AddColorPicker("OxyAccent", {
+    local AccentPicker = ThemeBox:AddColorPicker("ZeroAccent", {
         Text = "Accent Color",
         Default = Theme.Accent,
         Callback = function(Color)
             Library:SetAccent(Color)
         end,
     })
-    local CursorPicker = ThemeBox:AddColorPicker("OxyCursor", {
+    local CursorPicker = ThemeBox:AddColorPicker("ZeroCursor", {
         Text = "Cursor Color",
         Default = Settings.CursorColor,
         Callback = function(Color)
@@ -2796,7 +2806,7 @@ function Library:CreateSettingsTab(Window)
             end
         end,
     })
-    ThemeBox:AddDropdown("_OxyPremade", {
+    ThemeBox:AddDropdown("_ZeroPremade", {
         Text = "Premade Themes",
         Values = PremadeOrder,
         Callback = function(Value)
@@ -2826,15 +2836,15 @@ function Library:CreateSettingsTab(Window)
             MenuListening = false
             Window.ToggleKey = Input.KeyCode
             pcall(function()
-                writefile("SweetieHub/Oxy_MenuKey.txt", Input.KeyCode.Name)
+                writefile("SweetieHub/Zero_MenuKey.txt", Input.KeyCode.Name)
             end)
             MenuKeyButton:SetText("Show / Hide Key: " .. Input.KeyCode.Name)
         end
     end)
 
     local ConfigBox = Tab:AddGroupbox("Configs")
-    local NameInput = ConfigBox:AddInput("_OxyConfigName", { Text = "Config Name", Placeholder = "MyConfig" })
-    local ConfigList = ConfigBox:AddDropdown("_OxyConfigList", { Text = "Saved Configs", Values = ListConfigs() })
+    local NameInput = ConfigBox:AddInput("_ZeroConfigName", { Text = "Config Name", Placeholder = "MyConfig" })
+    local ConfigList = ConfigBox:AddDropdown("_ZeroConfigList", { Text = "Saved Configs", Values = ListConfigs() })
 
     ConfigBox:AddButton({ Text = "Create / Save", Func = function()
         if SaveConfig(NameInput.Value) then
@@ -2901,7 +2911,7 @@ end
 -- Tutorial
 
 local Window = Library:CreateWindow({
-    Title = "OXY",
+    Title = "ZERO",
     Version = "v1.0.0",
 })
 
@@ -3037,7 +3047,7 @@ Library:CreateSettingsTab(Window)
 task.spawn(function()
     Library:Notify({
         Title = "Welcome",
-        Description = "Oxy loaded successfully.",
+        Description = "Zero loaded successfully.",
         Type = "Success",
         Duration = 5,
     })
