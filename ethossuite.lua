@@ -176,18 +176,16 @@ local function LoadCustomFont(FontName, FontUrl)
         writefile(TtfName, game:HttpGet(FontUrl))
     end
 
-    if not isfile(FontDataName) then
-        local Data = {
+    local Data = {
+        name = FontName,
+        faces = { {
             name = FontName,
-            faces = { {
-                name = FontName,
-                weight = 600,
-                style = "normal",
-                assetId = getcustomasset(TtfName),
-            } },
-        }
-        writefile(FontDataName, HttpService:JSONEncode(Data))
-    end
+            weight = 600,
+            style = "normal",
+            assetId = getcustomasset(TtfName),
+        } },
+    }
+    writefile(FontDataName, HttpService:JSONEncode(Data))
 
     return Font.new(getcustomasset(FontDataName))
 end
