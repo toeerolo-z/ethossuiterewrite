@@ -1661,17 +1661,21 @@ function Groupbox:AddDropdown(Flag, Options)
             ClosePopup()
         end)
 
-        Popup = Create("Frame", {
+        Popup = Create("ScrollingFrame", {
             Name = "OpenDropdown",
             Parent = self.Window.Screen,
+            Active = true,
             BorderSizePixel = 0,
             BackgroundColor3 = Theme.ElementBackground,
-            AutomaticSize = Enum.AutomaticSize.Y,
-            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, 0),
+            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 20 + 10, 170)),
             Position = UDim2.fromOffset(
                 Control.AbsolutePosition.X + Settings.DropdownMenuOffset.X,
                 Control.AbsolutePosition.Y + Control.AbsoluteSize.Y + Settings.DropdownMenuOffset.Y
             ),
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            ScrollBarThickness = 0,
+            ScrollingDirection = Enum.ScrollingDirection.Y,
             ZIndex = 110,
         })
         Create("UICorner", { CornerRadius = UDim.new(0, 2), Parent = Popup })
