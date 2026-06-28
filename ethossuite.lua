@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
 
 local LocalPlayer = Players.LocalPlayer
+local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
 local Executions = {}
 do
@@ -552,7 +553,7 @@ function Library:CreateWindow(Config)
         BackgroundColor3 = Theme.Background,
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = Config.Position or UDim2.fromScale(0.5, 0.5),
-        Size = Config.Size or UDim2.fromOffset(860, 520),
+        Size = IsMobile and UDim2.fromScale(0.92, 0.8) or (Config.Size or UDim2.fromOffset(860, 520)),
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = Main })
     Create("UIStroke", { Transparency = 0.5, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.Stroke, Parent = Main })
@@ -750,7 +751,7 @@ function Library:CreateWindow(Config)
         Self:Unload()
     end)
     MinimizeButton.MouseButton1Click:Connect(function()
-        Screen.Enabled = false
+        Main.Visible = false
         if Settings.CursorEnabled then
             UserInputService.MouseIconEnabled = true
         end
@@ -774,8 +775,8 @@ function Library:CreateWindow(Config)
         Self.Cursor = Cursor
 
         Hook(RunService.RenderStepped, function()
-            Cursor.Visible = Screen.Enabled
-            if Screen.Enabled then
+            Cursor.Visible = Main.Visible
+            if Main.Visible then
                 local Mouse = UserInputService:GetMouseLocation()
                 Cursor.Position = UDim2.fromOffset(Mouse.X + Settings.CursorOffset.X, Mouse.Y + Settings.CursorOffset.Y)
             end
@@ -797,11 +798,42 @@ function Library:CreateWindow(Config)
     if Config.ToggleKey ~= false then
         Hook(UserInputService.InputBegan, function(Input, GameProcessed)
             if not GameProcessed and Input.KeyCode == Self.ToggleKey then
-                Screen.Enabled = not Screen.Enabled
+                Main.Visible = not Main.Visible
                 if Settings.CursorEnabled then
-                    UserInputService.MouseIconEnabled = not Screen.Enabled
+                    UserInputService.MouseIconEnabled = not Main.Visible
                 end
             end
+        end)
+    end
+
+    if IsMobile then
+        local MobileButton = Create("TextButton", {
+            Name = "MobileToggle",
+            Parent = Screen,
+            Text = "",
+            AutoButtonColor = false,
+            BackgroundColor3 = Theme.Accent,
+            AnchorPoint = Vector2.new(1, 1),
+            Position = UDim2.new(1, -16, 1, -16),
+            Size = UDim2.fromOffset(48, 48),
+            ZIndex = 9998,
+        })
+        Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = MobileButton })
+        Create("UIStroke", { Color = Theme.Stroke, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = MobileButton })
+
+        for _, YOffset in ipairs({ -7, 0, 7 }) do
+            Create("Frame", {
+                Parent = MobileButton,
+                BorderSizePixel = 0,
+                BackgroundColor3 = Theme.AccentText,
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.new(0.5, 0, 0.5, YOffset),
+                Size = UDim2.fromOffset(22, 3),
+            })
+        end
+
+        MobileButton.MouseButton1Click:Connect(function()
+            Main.Visible = not Main.Visible
         end)
     end
 
