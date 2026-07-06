@@ -331,8 +331,11 @@ local function MakeDraggable(DragHandle, Target)
     local StartMouse
     local StartPosition
 
+    local function IsPress(t) return t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch end
+    local function IsMove(t) return t == Enum.UserInputType.MouseMovement or t == Enum.UserInputType.Touch end
+
     DragHandle.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if IsPress(Input.UserInputType) then
             Dragging = true
             StartMouse = Input.Position
             StartPosition = Target.Position
@@ -342,14 +345,14 @@ local function MakeDraggable(DragHandle, Target)
     end)
 
     Hook(UserInputService.InputEnded, function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 and Dragging then
+        if IsPress(Input.UserInputType) and Dragging then
             Dragging = false
             SetWindowFaded(false)
         end
     end)
 
     Hook(UserInputService.InputChanged, function(Input)
-        if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+        if Dragging and IsMove(Input.UserInputType) then
             local Delta = Input.Position - StartMouse
             Target.Position = UDim2.new(
                 StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
@@ -1337,28 +1340,27 @@ function Groupbox:AddSlider(Flag, Options)
     end
 
     local Dragging = false
-    local function UpdateFromMouse()
-        local Mouse = UserInputService:GetMouseLocation()
-        local Alpha = (Mouse.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X
+    local function UpdateFromPos(pos)
+        local Alpha = (pos.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X
         Slider:SetValue(Min + (Max - Min) * math.clamp(Alpha, 0, 1))
     end
 
     Track.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             Dragging = true
             Tween(Title, { TextColor3 = Theme.Title }, 0.15)
             Tween(ValueLabel, { TextColor3 = Theme.Title }, 0.15)
             Tween(Knob, { Size = UDim2.new(0, 8, 0, 8) }, 0.1)
-            UpdateFromMouse()
+            UpdateFromPos(Input.Position)
         end
     end)
     Hook(UserInputService.InputChanged, function(Input)
-        if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-            UpdateFromMouse()
+        if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
+            UpdateFromPos(Input.Position)
         end
     end)
     Hook(UserInputService.InputEnded, function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 and Dragging then
+        if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) and Dragging then
             Dragging = false
             Tween(Title, { TextColor3 = Theme.Text }, 0.15)
             Tween(ValueLabel, { TextColor3 = Theme.Text }, 0.15)
@@ -2098,19 +2100,19 @@ function Library:OpenColorPicker(ColorPicker, Swatch)
     end
 
     Canvas.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             DraggingCanvas = true
             UpdateCanvas(Input.Position)
         end
     end)
     HueBar.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             DraggingHue = true
             UpdateHue(Input.Position)
         end
     end)
     local MoveConn = UserInputService.InputChanged:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseMovement then
+        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
             if DraggingCanvas then
                 UpdateCanvas(Input.Position)
             end
@@ -2120,7 +2122,7 @@ function Library:OpenColorPicker(ColorPicker, Swatch)
         end
     end)
     local EndConn = UserInputService.InputEnded:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             DraggingCanvas = false
             DraggingHue = false
         end
