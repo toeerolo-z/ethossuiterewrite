@@ -68,6 +68,7 @@ local Theme = {
     TabUnselected = Color3.fromRGB(93, 93, 105),
     SliderTrack = Color3.fromRGB(19, 19, 25),
     SliderStroke = Color3.fromRGB(31, 32, 40),
+    SliderFill = Color3.fromRGB(220, 220, 230),
     Line = Color3.fromRGB(31, 32, 40),
     ButtonStroke = Color3.fromRGB(36, 47, 66),
     OutlineButton = Color3.fromRGB(19, 19, 25),
@@ -115,8 +116,8 @@ local Settings = {
     KeybindMenuOffset = Vector2.new(170, 70),
     DropdownMenuOffset = Vector2.new(0, 65),
     DragFadeTransparency = 0.3,
-    DragImage = "https://raw.githubusercontent.com/aymanabdo0355-ctrl/Images/main/ChatGPT%20Image%20Jul%2017%2C%202026%2C%2009_15_15%20PM.png",
-    DragImageSize = UDim2.fromScale(0.7, 0.7),
+    DragImage = "https://raw.githubusercontent.com/aymanabdo0355-ctrl/Images/main/ChatGPT%20Image%20Jul%2017%2C%202026%2C%2011_47_50%20PM.png",
+    DragImageSize = UDim2.fromScale(0.9, 0.85),
     DragImageRotation = -25,
     CursorEnabled = true,
     CursorImage = "rbxassetid://131481965346967",
@@ -685,7 +686,7 @@ function Library:CreateWindow(Config)
         RegisterFadesEnabled = false
         local DragSrc = Settings.DragImage
         if type(DragSrc) == "string" and DragSrc:match("^https?://") then
-            local DragFile = "ZeroHub/drag_image.png"
+            local DragFile = "ZeroHub/drag_image_v2.png"
             pcall(function()
                 if not isfile(DragFile) then
                     writefile(DragFile, game:HttpGet(DragSrc))
@@ -1427,13 +1428,10 @@ function Groupbox:AddSlider(Flag, Options)
         Name = "Fill",
         Parent = Track,
         BorderSizePixel = 0,
-        BackgroundColor3 = Theme.Accent,
+        BackgroundColor3 = Theme.SliderFill,
         Size = UDim2.new(0, 0, 1, 0),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Fill })
-    RegisterAccent(function()
-        Fill.BackgroundColor3 = Theme.Accent
-    end)
 
     local Knob = Create("Frame", {
         Name = "Knob",
