@@ -53,10 +53,10 @@ local Theme = {
     Background = Color3.fromRGB(12, 12, 16),
     Panel = Color3.fromRGB(19, 19, 25),
     Stroke = Color3.fromRGB(34, 35, 43),
-    Accent = Color3.fromRGB(255, 0, 85),
-    AccentHover = Color3.fromRGB(255, 31, 105),
-    AccentClick = Color3.fromRGB(255, 56, 122),
-    AccentText = Color3.fromRGB(255, 0, 85),
+    Accent = Color3.fromRGB(18, 18, 24),
+    AccentHover = Color3.fromRGB(28, 28, 36),
+    AccentClick = Color3.fromRGB(36, 36, 44),
+    AccentText = Color3.fromRGB(200, 200, 210),
     ElementBackground = Color3.fromRGB(12, 12, 16),
     ElementStroke = Color3.fromRGB(31, 31, 39),
     Title = Color3.fromRGB(175, 175, 177),
@@ -92,6 +92,7 @@ local Theme = {
     ButtonDefault = Color3.fromRGB(22, 22, 28),
     ButtonDefaultHover = Color3.fromRGB(32, 32, 40),
     ButtonDefaultStroke = Color3.fromRGB(36, 36, 46),
+    ElementBorder = Color3.fromRGB(32, 32, 40),
     TooltipBackground = Color3.fromRGB(22, 22, 28),
     TooltipBorder = Color3.fromRGB(44, 44, 56),
     TooltipTitle = Color3.fromRGB(235, 235, 240),
@@ -121,7 +122,7 @@ local Settings = {
     CursorImage = "rbxassetid://131481965346967",
     CursorSize = Vector2.new(20, 20),
     CursorOffset = Vector2.new(0, 0),
-    CursorColor = Theme.Accent,
+    CursorColor = Theme.AccentText,
 }
 
 Library.Settings = Settings
@@ -503,7 +504,7 @@ local Groupbox = {}
 Groupbox.__index = Groupbox
 
 local function MakeHolder(Parent, Height)
-    return Create("Frame", {
+    local Holder = Create("Frame", {
         Name = "ElementHolder",
         Parent = Parent,
         ZIndex = 2,
@@ -512,6 +513,15 @@ local function MakeHolder(Parent, Height)
         AutomaticSize = Enum.AutomaticSize.Y,
         Size = UDim2.new(1, 0, 0, Height or 0),
     })
+    Create("Frame", {
+        Name = "Sep", Parent = Holder, BorderSizePixel = 0,
+        BackgroundColor3 = Theme.ElementBorder,
+        AnchorPoint = Vector2.new(0.5, 1),
+        Size = UDim2.new(1, -16, 0, 1),
+        Position = UDim2.new(0.5, 0, 1, 0),
+        ZIndex = 2,
+    })
+    return Holder
 end
 
 local function MakeTitle(Parent, Text, Color)
@@ -753,9 +763,9 @@ function Library:CreateWindow(Config)
             LayoutOrder = 2,
             BorderSizePixel = 0,
             TextSize = 12,
-            BackgroundColor3 = Theme.Accent,
+            BackgroundColor3 = Theme.AccentText,
             FontFace = InterSemiBold,
-            TextColor3 = Color3.fromRGB(0, 0, 0),
+            TextColor3 = Color3.fromRGB(12, 12, 16),
             Size = UDim2.new(0, 0, 0, 14),
             AutomaticSize = Enum.AutomaticSize.X,
             Text = Config.GameName,
@@ -763,7 +773,7 @@ function Library:CreateWindow(Config)
         Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = GameName })
         Create("UIPadding", { PaddingRight = UDim.new(0, 4), PaddingLeft = UDim.new(0, 4), Parent = GameName })
         RegisterAccent(function()
-            GameName.BackgroundColor3 = Theme.Accent
+            GameName.BackgroundColor3 = Theme.AccentText
         end)
     end
 
@@ -1149,14 +1159,14 @@ function Category:AddTab(Name)
         Name = "SelectedTabLine",
         Parent = Label,
         BorderSizePixel = 0,
-        BackgroundColor3 = Theme.Accent,
+        BackgroundColor3 = Theme.AccentText,
         AnchorPoint = Vector2.new(0, 1),
         Size = UDim2.new(0, 0, 0, 5),
         Position = UDim2.new(0, 0, 1, 5),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Line })
     RegisterAccent(function()
-        Line.BackgroundColor3 = Theme.Accent
+        Line.BackgroundColor3 = Theme.AccentText
     end)
 
     local Button = Create("TextButton", {
@@ -1292,7 +1302,7 @@ function Groupbox:AddToggle(Flag, Options)
         ZIndex = 2,
         BorderSizePixel = 0,
         BackgroundTransparency = 1,
-        ImageColor3 = Color3.fromRGB(0, 0, 0),
+        ImageColor3 = Color3.fromRGB(210, 210, 220),
         ImageTransparency = 1,
         AnchorPoint = Vector2.new(0.5, 0.5),
         Image = Assets.Check,
@@ -1321,9 +1331,9 @@ function Groupbox:AddToggle(Flag, Options)
     local function Visual()
         if Toggle.Value then
             Tween(Checkmark, { BackgroundColor3 = Theme.Accent }, 0.15)
-            Tween(BoxStroke, { Transparency = 1 }, 0.15)
+            Tween(BoxStroke, { Transparency = 0, Color = Theme.AccentText }, 0.15)
             Tween(Tick, { ImageTransparency = 0 }, 0.15)
-            Tween(GlowStroke, { Transparency = 0, Color = Theme.Accent }, 0.15)
+            Tween(GlowStroke, { Transparency = 0, Color = Theme.AccentText }, 0.15)
             Tween(Title, { TextColor3 = Theme.Title }, 0.15)
         else
             Tween(Checkmark, { BackgroundColor3 = Theme.ElementBackground }, 0.15)
@@ -1436,7 +1446,7 @@ function Groupbox:AddSlider(Flag, Options)
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Knob })
 
-    local ValueLabel = Create("TextLabel", {
+    local ValueLabel = Create("TextBox", {
         Name = "ValueLabel",
         Parent = Holder,
         BorderSizePixel = 0,
@@ -1447,6 +1457,7 @@ function Groupbox:AddSlider(Flag, Options)
         AnchorPoint = Vector2.new(1, 1),
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = "0",
+        ClearTextOnFocus = true,
         Position = UDim2.new(1, -8, 1, -15),
     })
 
@@ -1477,6 +1488,16 @@ function Groupbox:AddSlider(Flag, Options)
         Tween(Knob, { Position = UDim2.new(Alpha, 0, 0.5, 0) }, 0.1)
         ValueLabel.Text = tostring(Slider.Value) .. Suffix
     end
+
+    ValueLabel.FocusLost:Connect(function(Enter)
+        local Raw = ValueLabel.Text:gsub(Suffix, "")
+        local Num = tonumber(Raw)
+        if Num then
+            Slider:SetValue(Num)
+        else
+            Visual()
+        end
+    end)
 
     function Slider:SetValue(Value, SkipCallback)
         Slider.Value = Round(math.clamp(Value, Min, Max))
@@ -1881,7 +1902,7 @@ function Groupbox:AddDropdown(Flag, Options)
             Active = true,
             BorderSizePixel = 0,
             BackgroundColor3 = Theme.ElementBackground,
-            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 20 + 10, 170)),
+            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 20 + 10 + (#Dropdown.Values >= 8 and 28 or 0), 200)),
             Position = UDim2.fromOffset(
                 Control.AbsolutePosition.X + Settings.DropdownMenuOffset.X,
                 Control.AbsolutePosition.Y + Control.AbsoluteSize.Y + Settings.DropdownMenuOffset.Y
@@ -1897,11 +1918,37 @@ function Groupbox:AddDropdown(Flag, Options)
         Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Parent = Popup })
         Create("UIPadding", { PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5), Parent = Popup })
 
+        local SearchBox
+        if #Dropdown.Values >= 8 then
+            local SearchHolder = Create("Frame", {
+                Name = "SearchHolder", Parent = Popup, LayoutOrder = 0,
+                BorderSizePixel = 0, BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 24), ZIndex = 111,
+            })
+            SearchBox = Create("TextBox", {
+                Name = "Search", Parent = SearchHolder, BorderSizePixel = 0,
+                TextSize = 12, BackgroundColor3 = Theme.Panel,
+                FontFace = InterSemiBold, TextColor3 = Theme.TextboxText,
+                PlaceholderColor3 = Color3.fromRGB(70, 70, 80),
+                PlaceholderText = "Search...", Text = "",
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.new(1, -10, 0, 20),
+                ClearTextOnFocus = false, ZIndex = 112,
+            })
+            Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = SearchBox })
+            Create("UIStroke", { Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = SearchBox })
+            Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6), Parent = SearchBox })
+        end
+
+        local OptionFrames = {}
         local Refreshers = {}
         for _, Item in ipairs(Dropdown.Values) do
             local Selected = IsSelected(Item)
             local Option = Create("TextLabel", {
                 Parent = Popup,
+                LayoutOrder = 1,
                 BorderSizePixel = 0,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
@@ -1969,6 +2016,22 @@ function Groupbox:AddDropdown(Flag, Options)
                     end
                     UpdateDisplay()
                     SafeCall(Dropdown.Callback, Item)
+                end
+            end)
+
+            table.insert(OptionFrames, { Frame = Option, Name = Item })
+        end
+
+        if SearchBox then
+            SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+                local Query = SearchBox.Text:lower()
+                for _, Entry in ipairs(OptionFrames) do
+                    Entry.Frame.Visible = Query == "" or Entry.Name:lower():find(Query, 1, true) ~= nil
+                end
+            end)
+            task.defer(function()
+                if SearchBox and SearchBox.Parent then
+                    SearchBox:CaptureFocus()
                 end
             end)
         end
