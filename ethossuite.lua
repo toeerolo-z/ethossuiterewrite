@@ -89,9 +89,9 @@ local Theme = {
     KeybindModeOff = Color3.fromRGB(19, 19, 19),
     TextboxStroke = Color3.fromRGB(33, 34, 40),
     TextboxText = Color3.fromRGB(130, 130, 131),
-    ButtonDefault = Color3.fromRGB(135, 18, 42),
-    ButtonDefaultHover = Color3.fromRGB(155, 28, 52),
-    ButtonDefaultStroke = Color3.fromRGB(155, 28, 52),
+    ButtonDefault = Color3.fromRGB(22, 22, 28),
+    ButtonDefaultHover = Color3.fromRGB(32, 32, 40),
+    ButtonDefaultStroke = Color3.fromRGB(36, 36, 46),
     TooltipBackground = Color3.fromRGB(22, 22, 28),
     TooltipBorder = Color3.fromRGB(44, 44, 56),
     TooltipTitle = Color3.fromRGB(235, 235, 240),
@@ -296,7 +296,7 @@ local function ShowTooltip(Element, Opts)
 
     TipToken = TipToken + 1
     TipTitle.Text = Opts.TooltipTitle or Opts.Text or ""
-    TipDesc.Text = Opts.TooltipDesc or ""
+    TipDesc.Text = Opts.TooltipDesc or Opts.Description or ""
     TipDesc.Visible = TipDesc.Text ~= ""
 
     local Img = ResolveAsset(Opts.TooltipImage)
@@ -332,7 +332,7 @@ local function HideTooltip()
 end
 
 local function HookTooltip(Holder, Opts)
-    if not Opts.TooltipImage and not Opts.TooltipDesc then return end
+    if not Opts.TooltipImage and not Opts.TooltipDesc and not Opts.Description then return end
     Holder.MouseEnter:Connect(function() ShowTooltip(Holder, Opts) end)
     Holder.MouseLeave:Connect(function() HideTooltip() end)
 end
@@ -1521,7 +1521,8 @@ function Groupbox:AddButton(Options)
         Position = UDim2.new(0.5, 0, 0.5, 0),
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = ButtonFrame })
-    local ButtonStroke = Create("UIStroke", { Color = Color, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = ButtonFrame })
+    local StrokeColor = Options.Color or Theme.ButtonDefaultStroke
+    local ButtonStroke = Create("UIStroke", { Color = StrokeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = ButtonFrame })
 
     local Click = Create("TextButton", {
         Parent = ButtonFrame,
