@@ -114,6 +114,8 @@ local Settings = {
     KeybindMenuOffset = Vector2.new(170, 70),
     DropdownMenuOffset = Vector2.new(0, 65),
     DragFadeTransparency = 0.3,
+    DragImage = nil,
+    DragImageSize = UDim2.fromOffset(200, 200),
     CursorEnabled = true,
     CursorImage = "rbxassetid://131481965346967",
     CursorSize = Vector2.new(20, 20),
@@ -395,18 +397,16 @@ local DragFadeBase
 local DragFaded = false
 local DragRestoring = false
 local DragRestoreToken = 0
+local DragImageLabel
 
 local function SetWindowFaded(Faded)
-    if Faded == DragFaded then
-        return
-    end
+    if Faded == DragFaded then return end
     DragFaded = Faded
+
     if Faded then
         if DragRestoring and DragFadeBase then
             for Entry, Base in pairs(DragFadeBase) do
-                if Entry[1].Parent then
-                    Entry[1][Entry[2]] = Base
-                end
+                if Entry[1].Parent then Entry[1][Entry[2]] = Base end
             end
         end
         DragRestoring = false
@@ -421,10 +421,22 @@ local function SetWindowFaded(Faded)
         FadeTargets = Alive
         for Entry, Base in pairs(DragFadeBase) do
             if Entry[1].Parent then
-                Tween(Entry[1], { [Entry[2]] = Base + (1 - Base) * Settings.DragFadeTransparency }, 0.15)
+                Tween(Entry[1], { [Entry[2]] = 1 }, 0.15)
             end
         end
+        if DragImageLabel then
+            DragImageLabel.Visible = true
+            Tween(DragImageLabel, { ImageTransparency = 0 }, 0.15)
+        end
     elseif DragFadeBase then
+        if DragImageLabel then
+            Tween(DragImageLabel, { ImageTransparency = 1 }, 0.15)
+            task.delay(0.16, function()
+                if not DragFaded and DragImageLabel then
+                    DragImageLabel.Visible = false
+                end
+            end)
+        end
         for Entry, Base in pairs(DragFadeBase) do
             if Entry[1].Parent then
                 Tween(Entry[1], { [Entry[2]] = Base }, 0.15)
@@ -675,6 +687,28 @@ function Library:CreateWindow(Config)
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = Main })
     Create("UIStroke", { Transparency = 0.5, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.Stroke, Parent = Main })
+
+    if Settings.DragImage then
+        RegisterFadesEnabled = false
+        local Img = ResolveAsset(Settings.DragImage)
+        if Img then
+            DragImageLabel = Create("ImageLabel", {
+                Name = "DragImage",
+                Parent = Main,
+                BorderSizePixel = 0,
+                BackgroundTransparency = 1,
+                ImageTransparency = 1,
+                Image = Img,
+                ScaleType = Enum.ScaleType.Fit,
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = Settings.DragImageSize,
+                Visible = false,
+                ZIndex = 50,
+            })
+        end
+        RegisterFadesEnabled = true
+    end
 
     local TopBar = Create("Frame", {
         Name = "TopBar",
