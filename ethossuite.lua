@@ -1410,11 +1410,10 @@ function Groupbox:AddSlider(Flag, Options)
         BorderSizePixel = 0,
         BackgroundColor3 = Theme.SliderTrack,
         AnchorPoint = HasDesc and Vector2.new(0.5, 0) or Vector2.new(0.5, 1),
-        Size = UDim2.new(1, -20, 0, 5),
+        Size = UDim2.new(1, -20, 0, 6),
         Position = HasDesc and UDim2.new(0.5, 0, 0, 35) or UDim2.new(0.5, 0, 1, -5),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Track })
-    Create("UIStroke", { Color = Theme.SliderStroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Track })
 
     local Fill = Create("Frame", {
         Name = "Fill",
@@ -1429,12 +1428,13 @@ function Groupbox:AddSlider(Flag, Options)
         Name = "Knob",
         Parent = Track,
         BorderSizePixel = 0,
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(240, 240, 245),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 10, 0, 10),
+        Size = UDim2.new(0, 14, 0, 14),
         Position = UDim2.new(0, 0, 0.5, 0),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Knob })
+    Create("UIStroke", { Thickness = 1, Color = Color3.fromRGB(60, 60, 72), Transparency = 0.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Knob })
 
     local ValueLabel = Create("TextBox", {
         Name = "ValueLabel",
@@ -1509,7 +1509,7 @@ function Groupbox:AddSlider(Flag, Options)
             Dragging = true
             Tween(Title, { TextColor3 = Theme.Title }, 0.15)
             Tween(ValueLabel, { TextColor3 = Theme.Title }, 0.15)
-            Tween(Knob, { Size = UDim2.new(0, 8, 0, 8) }, 0.1)
+            Tween(Knob, { Size = UDim2.new(0, 12, 0, 12) }, 0.1)
             UpdateFromPos(Input.Position)
         end
     end)
@@ -1523,7 +1523,7 @@ function Groupbox:AddSlider(Flag, Options)
             Dragging = false
             Tween(Title, { TextColor3 = Theme.Text }, 0.15)
             Tween(ValueLabel, { TextColor3 = Theme.Text }, 0.15)
-            Tween(Knob, { Size = UDim2.new(0, 10, 0, 10) }, 0.1)
+            Tween(Knob, { Size = UDim2.new(0, 14, 0, 14) }, 0.1)
         end
     end)
 
@@ -1772,11 +1772,11 @@ function Groupbox:AddDropdown(Flag, Options)
         BorderSizePixel = 0,
         BackgroundColor3 = Theme.ElementBackground,
         AnchorPoint = Vector2.new(1, 0.5),
-        Size = UDim2.new(0, 150, 0, 25),
+        Size = UDim2.new(0, 160, 0, 28),
         Position = UDim2.new(1, -8, 0.5, 0),
     })
-    Create("UICorner", { CornerRadius = UDim.new(0, 2), Parent = Control })
-    Create("UIStroke", { Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Control })
+    Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = Control })
+    Create("UIStroke", { Color = Theme.ElementStroke, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Control })
 
     local ArrowImage = Create("ImageLabel", {
         Name = "DropdownArrows",
@@ -1786,9 +1786,9 @@ function Groupbox:AddDropdown(Flag, Options)
         ImageColor3 = Theme.DropdownArrow,
         AnchorPoint = Vector2.new(1, 0.5),
         Image = Assets.DropdownArrow,
-        Size = UDim2.new(0, 12, 0, 12),
+        Size = UDim2.new(0, 11, 0, 11),
         Rotation = 90,
-        Position = UDim2.new(1, -3, 0.5, 0),
+        Position = UDim2.new(1, -6, 0.5, 0),
     })
 
     local Display = Create("TextLabel", {
@@ -1800,10 +1800,10 @@ function Groupbox:AddDropdown(Flag, Options)
         BackgroundTransparency = 1,
         FontFace = InterSemiBold,
         TextColor3 = Theme.DropdownBlank,
-        Size = UDim2.new(1, -25, 1, 0),
+        Size = UDim2.new(1, -28, 1, 0),
         TextTruncate = Enum.TextTruncate.AtEnd,
         Text = "--",
-        Position = UDim2.new(0, 5, 0, 0),
+        Position = UDim2.new(0, 8, 0, 0),
     })
 
     local ClickButton = Create("TextButton", {
@@ -1892,7 +1892,7 @@ function Groupbox:AddDropdown(Flag, Options)
             Active = true,
             BorderSizePixel = 0,
             BackgroundColor3 = Theme.ElementBackground,
-            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 20 + 10 + (#Dropdown.Values >= 8 and 28 or 0), 200)),
+            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 24 + 12 + (#Dropdown.Values >= 8 and 30 or 0), 220)),
             Position = UDim2.fromOffset(
                 Control.AbsolutePosition.X + Settings.DropdownMenuOffset.X,
                 Control.AbsolutePosition.Y + Control.AbsoluteSize.Y + Settings.DropdownMenuOffset.Y
@@ -1903,10 +1903,10 @@ function Groupbox:AddDropdown(Flag, Options)
             ScrollingDirection = Enum.ScrollingDirection.Y,
             ZIndex = 110,
         })
-        Create("UICorner", { CornerRadius = UDim.new(0, 2), Parent = Popup })
-        Create("UIStroke", { Thickness = 1.5, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Popup })
+        Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = Popup })
+        Create("UIStroke", { Thickness = 1, Color = Theme.ElementStroke, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Popup })
         Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Parent = Popup })
-        Create("UIPadding", { PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5), Parent = Popup })
+        Create("UIPadding", { PaddingTop = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4), Parent = Popup })
 
         local SearchBox
         if #Dropdown.Values >= 8 then
@@ -1945,7 +1945,7 @@ function Groupbox:AddDropdown(Flag, Options)
                 BackgroundTransparency = 1,
                 FontFace = InterSemiBold,
                 TextColor3 = Selected and Theme.AccentText or Theme.Text,
-                Size = UDim2.new(1, 0, 0, 20),
+                Size = UDim2.new(1, 0, 0, 24),
                 Text = Item,
                 ZIndex = 111,
             })
@@ -1954,10 +1954,12 @@ function Groupbox:AddDropdown(Flag, Options)
             local OptionButton = Create("TextButton", {
                 Parent = Option,
                 Text = "",
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, 0, 1, 0),
                 ZIndex = 112,
             })
+            Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = OptionButton })
 
             local function Refresh()
                 if IsSelected(Item) then
@@ -1971,12 +1973,14 @@ function Groupbox:AddDropdown(Flag, Options)
             table.insert(Refreshers, Refresh)
 
             OptionButton.MouseEnter:Connect(function()
+                Tween(OptionButton, { BackgroundTransparency = 0.92 }, 0.12)
                 if not IsSelected(Item) then
                     Tween(Option, { TextColor3 = Color3.fromRGB(150, 150, 158) }, 0.12)
                     Tween(OptionPad, { PaddingLeft = UDim.new(0, 14) }, 0.12)
                 end
             end)
             OptionButton.MouseLeave:Connect(function()
+                Tween(OptionButton, { BackgroundTransparency = 1 }, 0.12)
                 if not IsSelected(Item) then
                     Tween(Option, { TextColor3 = Theme.Text }, 0.12)
                     Tween(OptionPad, { PaddingLeft = UDim.new(0, 10) }, 0.12)
