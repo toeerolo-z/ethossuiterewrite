@@ -13,7 +13,7 @@ local IsMobile = UserInputService.TouchEnabled and not UserInputService.Keyboard
 
 local Executions = {}
 do
-    local Path = "SweetieHub/Zero_Executions.txt"
+    local Path = "ZeroHub/Zero_Executions.txt"
     function Executions.Increment()
         if getgenv()._ZeroExecCount then
             return getgenv()._ZeroExecCount
@@ -905,8 +905,8 @@ function Library:CreateWindow(Config)
 
     Self.ToggleKey = Config.ToggleKey or Enum.KeyCode.RightShift
     pcall(function()
-        if isfile("SweetieHub/Zero_MenuKey.txt") then
-            local Saved = Enum.KeyCode[readfile("SweetieHub/Zero_MenuKey.txt")]
+        if isfile("ZeroHub/Zero_MenuKey.txt") then
+            local Saved = Enum.KeyCode[readfile("ZeroHub/Zero_MenuKey.txt")]
             if Saved then
                 Self.ToggleKey = Saved
             end
@@ -1663,6 +1663,39 @@ function Groupbox:AddInput(Flag, Options)
     end
 
     return Input
+end
+
+function Groupbox:AddLabel(Text, Color)
+    local Holder = MakeHolder(self.Container)
+    local Label = Create("TextLabel", {
+        Name = "Label",
+        Parent = Holder,
+        BorderSizePixel = 0,
+        TextSize = 13,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        FontFace = InterSemiBold,
+        TextColor3 = Color or Theme.SubText,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, -20, 0, 0),
+        Text = Text or "",
+    })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 5), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 5), Parent = Label })
+
+    local LabelObj = {}
+    LabelObj.Type = "Label"
+    LabelObj.Label = Label
+
+    function LabelObj:SetText(NewText)
+        Label.Text = NewText
+    end
+
+    function LabelObj:SetColor(NewColor)
+        Label.TextColor3 = NewColor
+    end
+
+    return LabelObj
 end
 
 function Groupbox:AddDivider()
@@ -2811,8 +2844,8 @@ function Library:SetAccent(Color)
 end
 
 function Library:CreateSettingsTab(Window)
-    local ConfigFolder = "SweetieHub/Zero_Configs"
-    local AutoloadPath = "SweetieHub/Zero_Autoload.txt"
+    local ConfigFolder = "ZeroHub/Zero_Configs"
+    local AutoloadPath = "ZeroHub/Zero_Autoload.txt"
     pcall(function()
         if not isfolder(ConfigFolder) then
             makefolder(ConfigFolder)
@@ -3003,7 +3036,7 @@ function Library:CreateSettingsTab(Window)
             MenuListening = false
             Window.ToggleKey = Input.KeyCode
             pcall(function()
-                writefile("SweetieHub/Zero_MenuKey.txt", Input.KeyCode.Name)
+                writefile("ZeroHub/Zero_MenuKey.txt", Input.KeyCode.Name)
             end)
             MenuKeyButton:SetText("Show / Hide Key: " .. Input.KeyCode.Name)
         end
