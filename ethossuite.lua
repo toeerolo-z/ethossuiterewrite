@@ -89,6 +89,13 @@ local Theme = {
     KeybindModeOff = Color3.fromRGB(19, 19, 19),
     TextboxStroke = Color3.fromRGB(33, 34, 40),
     TextboxText = Color3.fromRGB(130, 130, 131),
+    ButtonDefault = Color3.fromRGB(135, 18, 42),
+    ButtonDefaultHover = Color3.fromRGB(155, 28, 52),
+    ButtonDefaultStroke = Color3.fromRGB(155, 28, 52),
+    TooltipBackground = Color3.fromRGB(22, 22, 28),
+    TooltipBorder = Color3.fromRGB(44, 44, 56),
+    TooltipTitle = Color3.fromRGB(235, 235, 240),
+    TooltipDesc = Color3.fromRGB(155, 155, 168),
 }
 
 Library.Theme = Theme
@@ -221,6 +228,205 @@ local function SafeCall(Callback, ...)
         warn("[EthosLibrary] Callback error: " .. tostring(Err))
     end
 end
+
+-- ═══════════════════════════════════════════
+-- Tooltip System
+-- ═══════════════════════════════════════════
+
+local TooltipFrame, TooltipImage, TooltipTitleLabel, TooltipDescLabel
+local TooltipHideToken = 0
+
+local function ResolveAsset(Path)
+    if not Path or Path == "" then
+        return nil
+    end
+    if type(Path) == "string" and Path:match("^rbxassetid://") then
+        return Path
+    end
+    local Ok, Asset = pcall(getcustomasset, Path)
+    if Ok and Asset then
+        return Asset
+    end
+    return nil
+end
+
+local function EnsureTooltip()
+    if TooltipFrame then
+        return
+    end
+    local Screen = Library.Window and Library.Window.Screen
+    if not Screen then
+        return
+    end
+
+    RegisterFadesEnabled = false
+
+    TooltipFrame = Create("CanvasGroup", {
+        Name = "Tooltip",
+        Parent = Screen,
+        BorderSizePixel = 0,
+        BackgroundColor3 = Theme.TooltipBackground,
+        Size = UDim2.new(0, 220, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        GroupTransparency = 1,
+        Visible = false,
+        ZIndex = 200,
+    })
+    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipFrame })
+    Create("UIStroke", { Thickness = 1.5, Color = Theme.TooltipBorder, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = TooltipFrame })
+
+    local InnerLayout = Create("UIListLayout", {
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = TooltipFrame,
+    })
+
+    TooltipImage = Create("ImageLabel", {
+        Name = "TooltipImage",
+        Parent = TooltipFrame,
+        LayoutOrder = 1,
+        BorderSizePixel = 0,
+        BackgroundColor3 = Theme.Background,
+        Size = UDim2.new(1, 0, 0, 140),
+        ScaleType = Enum.ScaleType.Crop,
+        Visible = false,
+        ZIndex = 201,
+    })
+    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipImage })
+
+    local TextHolder = Create("Frame", {
+        Name = "TooltipTextHolder",
+        Parent = TooltipFrame,
+        LayoutOrder = 2,
+        BorderSizePixel = 0,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        ZIndex = 201,
+    })
+    Create("UIPadding", {
+        PaddingTop = UDim.new(0, 8),
+        PaddingBottom = UDim.new(0, 10),
+        PaddingLeft = UDim.new(0, 10),
+        PaddingRight = UDim.new(0, 10),
+        Parent = TextHolder,
+    })
+    Create("UIListLayout", {
+        Padding = UDim.new(0, 4),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = TextHolder,
+    })
+
+    TooltipTitleLabel = Create("TextLabel", {
+        Name = "Title",
+        Parent = TextHolder,
+        LayoutOrder = 1,
+        BorderSizePixel = 0,
+        BackgroundTransparency = 1,
+        FontFace = InterSemiBold,
+        TextSize = 14,
+        TextColor3 = Theme.TooltipTitle,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0),
+        Text = "",
+        ZIndex = 202,
+    })
+
+    TooltipDescLabel = Create("TextLabel", {
+        Name = "Description",
+        Parent = TextHolder,
+        LayoutOrder = 2,
+        BorderSizePixel = 0,
+        BackgroundTransparency = 1,
+        FontFace = InterSemiBold,
+        TextSize = 13,
+        TextColor3 = Theme.TooltipDesc,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0),
+        Text = "",
+        Visible = false,
+        ZIndex = 202,
+    })
+
+    RegisterFadesEnabled = true
+end
+
+local function ShowTooltip(Element, Options)
+    EnsureTooltip()
+    if not TooltipFrame then
+        return
+    end
+
+    TooltipHideToken = TooltipHideToken + 1
+
+    local Title = Options.TooltipTitle or Options.Text or ""
+    local Desc = Options.TooltipDesc or ""
+    local Img = ResolveAsset(Options.TooltipImage)
+
+    TooltipTitleLabel.Text = Title
+    TooltipDescLabel.Text = Desc
+    TooltipDescLabel.Visible = Desc ~= ""
+
+    if Img then
+        TooltipImage.Image = Img
+        TooltipImage.Visible = true
+    else
+        TooltipImage.Visible = false
+    end
+
+    local Pos = Element.AbsolutePosition
+    local Size = Element.AbsoluteSize
+    local ScreenSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+
+    local X = Pos.X + Size.X + 8
+    local Y = Pos.Y
+
+    if X + 228 > ScreenSize.X then
+        X = Pos.X - 228
+    end
+    if Y + 200 > ScreenSize.Y then
+        Y = ScreenSize.Y - 210
+    end
+
+    TooltipFrame.Position = UDim2.fromOffset(X, Y)
+    TooltipFrame.Visible = true
+    Tween(TooltipFrame, { GroupTransparency = 0 }, 0.15)
+end
+
+local function HideTooltip()
+    if not TooltipFrame then
+        return
+    end
+    TooltipHideToken = TooltipHideToken + 1
+    local Token = TooltipHideToken
+    task.delay(0.06, function()
+        if TooltipHideToken == Token then
+            Tween(TooltipFrame, { GroupTransparency = 1 }, 0.12)
+            task.delay(0.13, function()
+                if TooltipHideToken == Token and TooltipFrame then
+                    TooltipFrame.Visible = false
+                end
+            end)
+        end
+    end)
+end
+
+local function HookTooltip(Holder, Options)
+    if not Options.TooltipImage and not Options.TooltipDesc then
+        return
+    end
+    Holder.MouseEnter:Connect(function()
+        ShowTooltip(Holder, Options)
+    end)
+    Holder.MouseLeave:Connect(function()
+        HideTooltip()
+    end)
+end
+
+-- ═══════════════════════════════════════════
 
 local function GatherFade(Object, Acc)
     if Object:IsA("UIStroke") then
@@ -902,6 +1108,15 @@ function Window:Unload()
         NotifyHolder = nil
     end
     ActiveNotifs = {}
+    if TooltipFrame then
+        pcall(function()
+            TooltipFrame:Destroy()
+        end)
+        TooltipFrame = nil
+        TooltipImage = nil
+        TooltipTitleLabel = nil
+        TooltipDescLabel = nil
+    end
     if getgenv()._ZeroWindow == self then
         getgenv()._ZeroWindow = nil
     end
@@ -1114,6 +1329,8 @@ function Groupbox:AddToggle(Flag, Options)
         MakeDescription(Holder, Options.Description)
     end
 
+    HookTooltip(Holder, Options)
+
     local Checkmark = Create("Frame", {
         Name = "Checkmark",
         Parent = Holder,
@@ -1239,6 +1456,8 @@ function Groupbox:AddSlider(Flag, Options)
 
     local Holder = MakeHolder(self.Container, HasDesc and nil or 35)
     Holder.AutomaticSize = HasDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None
+
+    HookTooltip(Holder, Options)
 
     local Title = Create("TextLabel", {
         Name = "SliderTitle",
@@ -1382,8 +1601,10 @@ function Groupbox:AddButton(Options)
     local Holder = MakeHolder(self.Container, 35)
     Holder.AutomaticSize = Enum.AutomaticSize.None
 
-    local UsesAccent = (Options.Color == nil)
-    local Color = Options.Color or Theme.Accent
+    HookTooltip(Holder, Options)
+
+    local UsesAccent = false
+    local Color = Options.Color or Theme.ButtonDefault
 
     local ButtonFrame = Create("Frame", {
         Name = "Button",
@@ -1456,18 +1677,13 @@ function Groupbox:AddButton(Options)
         Click.Text = Text
     end
 
-    if UsesAccent then
-        RegisterAccent(function()
-            Button:SetColor(Theme.Accent)
-        end)
-    end
-
     return Button
 end
 
 function Groupbox:AddInput(Flag, Options)
     Options = Options or {}
     local Holder = MakeHolder(self.Container)
+    HookTooltip(Holder, Options)
     MakeTitle(Holder, Options.Text or "Input", Theme.Title)
     if Options.Description then
         MakeDescription(Holder, Options.Description)
@@ -1569,6 +1785,7 @@ function Groupbox:AddDropdown(Flag, Options)
     local Multi = Options.Multi or false
 
     local Holder = MakeHolder(self.Container)
+    HookTooltip(Holder, Options)
     local DropTitle = MakeTitle(Holder, Options.Text or "Dropdown", Theme.Text)
     if Options.Description then
         MakeDescription(Holder, Options.Description)
@@ -2181,6 +2398,7 @@ function Groupbox:AddColorPicker(Flag, Options)
     local Default = Options.Default or Color3.fromRGB(255, 255, 255)
 
     local Holder = MakeHolder(self.Container)
+    HookTooltip(Holder, Options)
     MakeTitle(Holder, Options.Text or "Colorpicker", Theme.Title)
     if Options.Description then
         MakeDescription(Holder, Options.Description)
