@@ -115,7 +115,8 @@ local Settings = {
     DropdownMenuOffset = Vector2.new(0, 65),
     DragFadeTransparency = 0.3,
     DragImage = "https://raw.githubusercontent.com/aymanabdo0355-ctrl/Images/main/ChatGPT%20Image%20Jul%2017%2C%202026%2C%2009_15_15%20PM.png",
-    DragImageSize = UDim2.fromOffset(200, 200),
+    DragImageSize = UDim2.fromScale(0.7, 0.7),
+    DragImageRotation = -25,
     CursorEnabled = true,
     CursorImage = "rbxassetid://131481965346967",
     CursorSize = Vector2.new(20, 20),
@@ -690,7 +691,9 @@ function Library:CreateWindow(Config)
                 Image = Img, ScaleType = Enum.ScaleType.Fit,
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
-                Size = Settings.DragImageSize, Visible = false, ZIndex = 50,
+                Size = Settings.DragImageSize,
+                Rotation = Settings.DragImageRotation or 0,
+                Visible = false, ZIndex = 50,
             })
         end
         RegisterFadesEnabled = true
