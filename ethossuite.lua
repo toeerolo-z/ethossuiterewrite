@@ -514,14 +514,6 @@ local function MakeHolder(Parent, Height)
         AutomaticSize = Enum.AutomaticSize.Y,
         Size = UDim2.new(1, 0, 0, Height or 0),
     })
-    Create("Frame", {
-        Name = "Sep", Parent = Holder, BorderSizePixel = 0,
-        BackgroundColor3 = Theme.ElementBorder,
-        AnchorPoint = Vector2.new(0.5, 1),
-        Size = UDim2.new(1, -16, 0, 1),
-        Position = UDim2.new(0.5, 0, 1, 0),
-        ZIndex = 2,
-    })
     return Holder
 end
 
@@ -677,7 +669,7 @@ function Library:CreateWindow(Config)
         BackgroundColor3 = Theme.Background,
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = Config.Position or UDim2.fromScale(0.5, 0.5),
-        Size = IsMobile and UDim2.fromScale(0.92, 0.8) or (Config.Size or UDim2.fromOffset(860, 520)),
+        Size = IsMobile and UDim2.fromScale(0.92, 0.8) or (Config.Size or UDim2.fromOffset(960, 580)),
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = Main })
     Create("UIStroke", { Transparency = 0.5, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.Stroke, Parent = Main })
@@ -1025,7 +1017,7 @@ function Window:SetMinimized(State)
         self.Main.ClipsDescendants = true
         Tween(self.Main, { Size = UDim2.new(self.Main.Size.X.Scale, self.Main.Size.X.Offset, 0, 45) }, 0.25)
     else
-        Tween(self.Main, { Size = self.FullSize or UDim2.fromOffset(860, 520) }, 0.25)
+        Tween(self.Main, { Size = self.FullSize or UDim2.fromOffset(960, 580) }, 0.25)
         task.delay(0.26, function()
             self.Main.ClipsDescendants = false
         end)
