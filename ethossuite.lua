@@ -52,7 +52,7 @@ Library.Popups = {}
 local Theme = {
     Background = Color3.fromRGB(12, 12, 16),
     Panel = Color3.fromRGB(19, 19, 25),
-    Stroke = Color3.fromRGB(50, 50, 60),
+    Stroke = Color3.fromRGB(34, 35, 43),
     Accent = Color3.fromRGB(18, 18, 24),
     AccentHover = Color3.fromRGB(28, 28, 36),
     AccentClick = Color3.fromRGB(36, 36, 44),
@@ -575,7 +575,7 @@ local function BuildGroupbox(Tab, Name)
         AutomaticSize = Enum.AutomaticSize.Y,
         Size = UDim2.new(1, 0, 0, 0),
     })
-    Create("UIStroke", { Thickness = 1.5, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Box })
+    Create("UIStroke", { Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Box })
     Create("UICorner", { CornerRadius = UDim.new(0, 1), Parent = Box })
     Create("UIPadding", { PaddingBottom = UDim.new(0, 5), Parent = Box })
 
@@ -1191,12 +1191,12 @@ function Category:AddTab(Name)
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
         ScrollBarThickness = 0,
     })
-    Create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page })
+    Create("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page })
     Create("UIPadding", {
-        PaddingTop = UDim.new(0, 6),
-        PaddingRight = UDim.new(0, 6),
-        PaddingLeft = UDim.new(0, 6),
-        PaddingBottom = UDim.new(0, 6),
+        PaddingTop = UDim.new(0, 8),
+        PaddingRight = UDim.new(0, 10),
+        PaddingLeft = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 8),
         Parent = Page,
     })
 
