@@ -537,9 +537,9 @@ local function MakeTitle(Parent, Text, Color)
         Text = Text,
     })
     Create("UIPadding", {
-        PaddingTop = UDim.new(0, 5),
+        PaddingTop = UDim.new(0, 2),
         PaddingLeft = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 1),
         Parent = Label,
     })
     return Label
@@ -559,9 +559,9 @@ local function MakeDescription(Parent, Text)
         Size = UDim2.new(1, -55, 0, 0),
         AutomaticSize = Enum.AutomaticSize.Y,
         Text = Text,
-        Position = UDim2.new(0, 0, 0, 23),
+        Position = UDim2.new(0, 0, 0, 18),
     })
-    Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10), Parent = Label })
+    Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 2), Parent = Label })
     return Label
 end
 
@@ -615,7 +615,7 @@ local function BuildGroupbox(Tab, Name)
         Size = UDim2.new(1, 0, 0, 0),
         Position = UDim2.new(0, 0, 0, 31),
     })
-    Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Container })
+    Create("UIListLayout", { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Container })
 
     local Self = setmetatable({}, Groupbox)
     Self.Window = Tab.Window
@@ -1190,7 +1190,7 @@ function Category:AddTab(Name)
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
         ScrollBarThickness = 0,
     })
-    Create("UIListLayout", { Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page })
+    Create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page })
     Create("UIPadding", {
         PaddingTop = UDim.new(0, 6),
         PaddingRight = UDim.new(0, 6),
@@ -1393,7 +1393,7 @@ function Groupbox:AddSlider(Flag, Options)
     local Suffix = Options.Suffix or ""
     local HasDesc = Options.Description ~= nil
 
-    local Holder = MakeHolder(self.Container, HasDesc and nil or 35)
+    local Holder = MakeHolder(self.Container, HasDesc and nil or 32)
     Holder.AutomaticSize = HasDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None
 
     HookTooltip(Holder, Options)
@@ -1409,7 +1409,7 @@ function Groupbox:AddSlider(Flag, Options)
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = Options.Text or "Slider",
     })
-    Create("UIPadding", { PaddingTop = UDim.new(0, 5), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10), Parent = Title })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 1), Parent = Title })
 
     local Track = Create("Frame", {
         Name = "Track",
@@ -1418,7 +1418,7 @@ function Groupbox:AddSlider(Flag, Options)
         BackgroundColor3 = Theme.SliderTrack,
         AnchorPoint = HasDesc and Vector2.new(0.5, 0) or Vector2.new(0.5, 1),
         Size = UDim2.new(1, -20, 0, 5),
-        Position = HasDesc and UDim2.new(0.5, 0, 0, 35) or UDim2.new(0.5, 0, 1, -5),
+        Position = HasDesc and UDim2.new(0.5, 0, 0, 28) or UDim2.new(0.5, 0, 1, -4),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Track })
     Create("UIStroke", { Color = Theme.SliderStroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Track })
@@ -1458,14 +1458,14 @@ function Groupbox:AddSlider(Flag, Options)
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = "0",
         ClearTextOnFocus = true,
-        Position = UDim2.new(1, -8, 1, -15),
+        Position = UDim2.new(1, -8, 1, -12),
     })
 
     if HasDesc then
         local Desc = MakeDescription(Holder, Options.Description)
-        Desc.Position = UDim2.new(0, 0, 0, 45)
+        Desc.Position = UDim2.new(0, 0, 0, 38)
         ValueLabel.AnchorPoint = Vector2.new(1, 0)
-        ValueLabel.Position = UDim2.new(1, -8, 0, 8)
+        ValueLabel.Position = UDim2.new(1, -8, 0, 5)
     end
 
     local Slider = {}
@@ -1727,7 +1727,7 @@ function Groupbox:AddLabel(Text, Color)
         Size = UDim2.new(1, -20, 0, 0),
         Text = Text or "",
     })
-    Create("UIPadding", { PaddingTop = UDim.new(0, 5), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 5), Parent = Label })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 1), Parent = Label })
 
     local LabelObj = {}
     LabelObj.Type = "Label"
