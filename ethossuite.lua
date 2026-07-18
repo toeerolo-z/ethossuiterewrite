@@ -229,204 +229,113 @@ local function SafeCall(Callback, ...)
     end
 end
 
--- ═══════════════════════════════════════════
--- Tooltip System
--- ═══════════════════════════════════════════
-
-local TooltipFrame, TooltipImage, TooltipTitleLabel, TooltipDescLabel
-local TooltipHideToken = 0
+local TooltipGui, TipImage, TipTitle, TipDesc
+local TipToken = 0
 
 local function ResolveAsset(Path)
-    if not Path or Path == "" then
-        return nil
-    end
-    if type(Path) == "string" and Path:match("^rbxassetid://") then
-        return Path
-    end
+    if not Path or Path == "" then return nil end
+    if Path:match("^rbxassetid://") then return Path end
     local Ok, Asset = pcall(getcustomasset, Path)
-    if Ok and Asset then
-        return Asset
-    end
-    return nil
+    return Ok and Asset or nil
 end
 
-local function EnsureTooltip()
-    if TooltipFrame then
-        return
-    end
+local function BuildTooltip()
+    if TooltipGui then return end
     local Screen = Library.Window and Library.Window.Screen
-    if not Screen then
-        return
-    end
+    if not Screen then return end
 
     RegisterFadesEnabled = false
 
-    TooltipFrame = Create("CanvasGroup", {
-        Name = "Tooltip",
-        Parent = Screen,
-        BorderSizePixel = 0,
+    TooltipGui = Create("CanvasGroup", {
+        Name = "Tooltip", Parent = Screen, BorderSizePixel = 0,
         BackgroundColor3 = Theme.TooltipBackground,
-        Size = UDim2.new(0, 220, 0, 0),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        GroupTransparency = 1,
-        Visible = false,
-        ZIndex = 200,
+        Size = UDim2.new(0, 220, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        GroupTransparency = 1, Visible = false, ZIndex = 200,
     })
-    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipFrame })
-    Create("UIStroke", { Thickness = 1.5, Color = Theme.TooltipBorder, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = TooltipFrame })
+    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipGui })
+    Create("UIStroke", { Thickness = 1.5, Color = Theme.TooltipBorder, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = TooltipGui })
+    Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Parent = TooltipGui })
 
-    local InnerLayout = Create("UIListLayout", {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Parent = TooltipFrame,
+    TipImage = Create("ImageLabel", {
+        Name = "Image", Parent = TooltipGui, LayoutOrder = 1, BorderSizePixel = 0,
+        BackgroundColor3 = Theme.Background, Size = UDim2.new(1, 0, 0, 140),
+        ScaleType = Enum.ScaleType.Crop, Visible = false, ZIndex = 201,
     })
+    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TipImage })
 
-    TooltipImage = Create("ImageLabel", {
-        Name = "TooltipImage",
-        Parent = TooltipFrame,
-        LayoutOrder = 1,
-        BorderSizePixel = 0,
-        BackgroundColor3 = Theme.Background,
-        Size = UDim2.new(1, 0, 0, 140),
-        ScaleType = Enum.ScaleType.Crop,
-        Visible = false,
-        ZIndex = 201,
+    local Inner = Create("Frame", {
+        Name = "Inner", Parent = TooltipGui, LayoutOrder = 2, BorderSizePixel = 0,
+        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 201,
     })
-    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipImage })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 10), PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = Inner })
+    Create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Inner })
 
-    local TextHolder = Create("Frame", {
-        Name = "TooltipTextHolder",
-        Parent = TooltipFrame,
-        LayoutOrder = 2,
-        BorderSizePixel = 0,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 0),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        ZIndex = 201,
-    })
-    Create("UIPadding", {
-        PaddingTop = UDim.new(0, 8),
-        PaddingBottom = UDim.new(0, 10),
-        PaddingLeft = UDim.new(0, 10),
-        PaddingRight = UDim.new(0, 10),
-        Parent = TextHolder,
-    })
-    Create("UIListLayout", {
-        Padding = UDim.new(0, 4),
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Parent = TextHolder,
+    TipTitle = Create("TextLabel", {
+        Name = "Title", Parent = Inner, LayoutOrder = 1, BorderSizePixel = 0,
+        BackgroundTransparency = 1, FontFace = InterSemiBold, TextSize = 14,
+        TextColor3 = Theme.TooltipTitle, TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0), Text = "", ZIndex = 202,
     })
 
-    TooltipTitleLabel = Create("TextLabel", {
-        Name = "Title",
-        Parent = TextHolder,
-        LayoutOrder = 1,
-        BorderSizePixel = 0,
-        BackgroundTransparency = 1,
-        FontFace = InterSemiBold,
-        TextSize = 14,
-        TextColor3 = Theme.TooltipTitle,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextWrapped = true,
-        AutomaticSize = Enum.AutomaticSize.Y,
-        Size = UDim2.new(1, 0, 0, 0),
-        Text = "",
-        ZIndex = 202,
-    })
-
-    TooltipDescLabel = Create("TextLabel", {
-        Name = "Description",
-        Parent = TextHolder,
-        LayoutOrder = 2,
-        BorderSizePixel = 0,
-        BackgroundTransparency = 1,
-        FontFace = InterSemiBold,
-        TextSize = 13,
-        TextColor3 = Theme.TooltipDesc,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextWrapped = true,
-        AutomaticSize = Enum.AutomaticSize.Y,
-        Size = UDim2.new(1, 0, 0, 0),
-        Text = "",
-        Visible = false,
-        ZIndex = 202,
+    TipDesc = Create("TextLabel", {
+        Name = "Desc", Parent = Inner, LayoutOrder = 2, BorderSizePixel = 0,
+        BackgroundTransparency = 1, FontFace = InterSemiBold, TextSize = 13,
+        TextColor3 = Theme.TooltipDesc, TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y,
+        Size = UDim2.new(1, 0, 0, 0), Text = "", Visible = false, ZIndex = 202,
     })
 
     RegisterFadesEnabled = true
 end
 
-local function ShowTooltip(Element, Options)
-    EnsureTooltip()
-    if not TooltipFrame then
-        return
-    end
+local function ShowTooltip(Element, Opts)
+    BuildTooltip()
+    if not TooltipGui then return end
 
-    TooltipHideToken = TooltipHideToken + 1
+    TipToken = TipToken + 1
+    TipTitle.Text = Opts.TooltipTitle or Opts.Text or ""
+    TipDesc.Text = Opts.TooltipDesc or ""
+    TipDesc.Visible = TipDesc.Text ~= ""
 
-    local Title = Options.TooltipTitle or Options.Text or ""
-    local Desc = Options.TooltipDesc or ""
-    local Img = ResolveAsset(Options.TooltipImage)
-
-    TooltipTitleLabel.Text = Title
-    TooltipDescLabel.Text = Desc
-    TooltipDescLabel.Visible = Desc ~= ""
-
-    if Img then
-        TooltipImage.Image = Img
-        TooltipImage.Visible = true
-    else
-        TooltipImage.Visible = false
-    end
+    local Img = ResolveAsset(Opts.TooltipImage)
+    TipImage.Image = Img or ""
+    TipImage.Visible = Img ~= nil
 
     local Pos = Element.AbsolutePosition
-    local Size = Element.AbsoluteSize
-    local ScreenSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
-
-    local X = Pos.X + Size.X + 8
+    local Sz = Element.AbsoluteSize
+    local Vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+    local X = Pos.X + Sz.X + 8
     local Y = Pos.Y
+    if X + 228 > Vp.X then X = Pos.X - 228 end
+    if Y + 200 > Vp.Y then Y = Vp.Y - 210 end
 
-    if X + 228 > ScreenSize.X then
-        X = Pos.X - 228
-    end
-    if Y + 200 > ScreenSize.Y then
-        Y = ScreenSize.Y - 210
-    end
-
-    TooltipFrame.Position = UDim2.fromOffset(X, Y)
-    TooltipFrame.Visible = true
-    Tween(TooltipFrame, { GroupTransparency = 0 }, 0.15)
+    TooltipGui.Position = UDim2.fromOffset(X, Y)
+    TooltipGui.Visible = true
+    Tween(TooltipGui, { GroupTransparency = 0 }, 0.15)
 end
 
 local function HideTooltip()
-    if not TooltipFrame then
-        return
-    end
-    TooltipHideToken = TooltipHideToken + 1
-    local Token = TooltipHideToken
+    if not TooltipGui then return end
+    TipToken = TipToken + 1
+    local Token = TipToken
     task.delay(0.06, function()
-        if TooltipHideToken == Token then
-            Tween(TooltipFrame, { GroupTransparency = 1 }, 0.12)
-            task.delay(0.13, function()
-                if TooltipHideToken == Token and TooltipFrame then
-                    TooltipFrame.Visible = false
-                end
-            end)
-        end
+        if TipToken ~= Token then return end
+        Tween(TooltipGui, { GroupTransparency = 1 }, 0.12)
+        task.delay(0.13, function()
+            if TipToken == Token and TooltipGui then
+                TooltipGui.Visible = false
+            end
+        end)
     end)
 end
 
-local function HookTooltip(Holder, Options)
-    if not Options.TooltipImage and not Options.TooltipDesc then
-        return
-    end
-    Holder.MouseEnter:Connect(function()
-        ShowTooltip(Holder, Options)
-    end)
-    Holder.MouseLeave:Connect(function()
-        HideTooltip()
-    end)
+local function HookTooltip(Holder, Opts)
+    if not Opts.TooltipImage and not Opts.TooltipDesc then return end
+    Holder.MouseEnter:Connect(function() ShowTooltip(Holder, Opts) end)
+    Holder.MouseLeave:Connect(function() HideTooltip() end)
 end
-
--- ═══════════════════════════════════════════
 
 local function GatherFade(Object, Acc)
     if Object:IsA("UIStroke") then
@@ -1108,14 +1017,9 @@ function Window:Unload()
         NotifyHolder = nil
     end
     ActiveNotifs = {}
-    if TooltipFrame then
-        pcall(function()
-            TooltipFrame:Destroy()
-        end)
-        TooltipFrame = nil
-        TooltipImage = nil
-        TooltipTitleLabel = nil
-        TooltipDescLabel = nil
+    if TooltipGui then
+        pcall(function() TooltipGui:Destroy() end)
+        TooltipGui = nil
     end
     if getgenv()._ZeroWindow == self then
         getgenv()._ZeroWindow = nil
