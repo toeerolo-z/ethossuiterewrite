@@ -114,7 +114,7 @@ local Settings = {
     KeybindMenuOffset = Vector2.new(170, 70),
     DropdownMenuOffset = Vector2.new(0, 65),
     DragFadeTransparency = 0.3,
-    DragImage = nil,
+    DragImage = "https://raw.githubusercontent.com/aymanabdo0355-ctrl/Images/main/ChatGPT%20Image%20Jul%2017%2C%202026%2C%2009_15_15%20PM.png",
     DragImageSize = UDim2.fromOffset(200, 200),
     CursorEnabled = true,
     CursorImage = "rbxassetid://131481965346967",
@@ -398,37 +398,25 @@ local DragFaded = false
 local DragRestoring = false
 local DragRestoreToken = 0
 local DragImageLabel
+local DragHideTargets = {}
 
 local function SetWindowFaded(Faded)
     if Faded == DragFaded then return end
     DragFaded = Faded
 
     if Faded then
-        if DragRestoring and DragFadeBase then
-            for Entry, Base in pairs(DragFadeBase) do
-                if Entry[1].Parent then Entry[1][Entry[2]] = Base end
-            end
-        end
-        DragRestoring = false
-        DragFadeBase = {}
-        local Alive = {}
-        for _, Entry in ipairs(FadeTargets) do
-            if Entry[1].Parent then
-                table.insert(Alive, Entry)
-                DragFadeBase[Entry] = Entry[1][Entry[2]]
-            end
-        end
-        FadeTargets = Alive
-        for Entry, Base in pairs(DragFadeBase) do
-            if Entry[1].Parent then
-                Tween(Entry[1], { [Entry[2]] = 1 }, 0.15)
-            end
+        for _, Target in ipairs(DragHideTargets) do
+            Target.Visible = false
         end
         if DragImageLabel then
             DragImageLabel.Visible = true
             Tween(DragImageLabel, { ImageTransparency = 0 }, 0.15)
         end
-    elseif DragFadeBase then
+        local Win = Library.Window
+        if Win and Win.Main then
+            Tween(Win.Main, { BackgroundTransparency = Settings.DragFadeTransparency }, 0.15)
+        end
+    else
         if DragImageLabel then
             Tween(DragImageLabel, { ImageTransparency = 1 }, 0.15)
             task.delay(0.16, function()
@@ -437,19 +425,13 @@ local function SetWindowFaded(Faded)
                 end
             end)
         end
-        for Entry, Base in pairs(DragFadeBase) do
-            if Entry[1].Parent then
-                Tween(Entry[1], { [Entry[2]] = Base }, 0.15)
-            end
+        for _, Target in ipairs(DragHideTargets) do
+            Target.Visible = true
         end
-        DragRestoring = true
-        DragRestoreToken = DragRestoreToken + 1
-        local Token = DragRestoreToken
-        task.delay(0.16, function()
-            if DragRestoreToken == Token then
-                DragRestoring = false
-            end
-        end)
+        local Win = Library.Window
+        if Win and Win.Main then
+            Tween(Win.Main, { BackgroundTransparency = 0 }, 0.15)
+        end
     end
 end
 
@@ -690,21 +672,25 @@ function Library:CreateWindow(Config)
 
     if Settings.DragImage then
         RegisterFadesEnabled = false
-        local Img = ResolveAsset(Settings.DragImage)
+        local DragSrc = Settings.DragImage
+        if type(DragSrc) == "string" and DragSrc:match("^https?://") then
+            local DragFile = "ZeroHub/drag_image.png"
+            pcall(function()
+                if not isfile(DragFile) then
+                    writefile(DragFile, game:HttpGet(DragSrc))
+                end
+            end)
+            DragSrc = DragFile
+        end
+        local Img = ResolveAsset(DragSrc)
         if Img then
             DragImageLabel = Create("ImageLabel", {
-                Name = "DragImage",
-                Parent = Main,
-                BorderSizePixel = 0,
-                BackgroundTransparency = 1,
-                ImageTransparency = 1,
-                Image = Img,
-                ScaleType = Enum.ScaleType.Fit,
+                Name = "DragImage", Parent = Main, BorderSizePixel = 0,
+                BackgroundTransparency = 1, ImageTransparency = 1,
+                Image = Img, ScaleType = Enum.ScaleType.Fit,
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
-                Size = Settings.DragImageSize,
-                Visible = false,
-                ZIndex = 50,
+                Size = Settings.DragImageSize, Visible = false, ZIndex = 50,
             })
         end
         RegisterFadesEnabled = true
@@ -882,6 +868,8 @@ function Library:CreateWindow(Config)
     Self.ExecBadge = ExecBadge
     Self.Categories = {}
     Self.Tabs = {}
+
+    DragHideTargets = { TopBar, TabsHolder, GroupboxesHolder }
     Self.ActiveTab = nil
     Self.Minimized = false
     Self.OpenPopupCount = 0
