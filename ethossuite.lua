@@ -52,7 +52,7 @@ Library.Popups = {}
 local Theme = {
     Background = Color3.fromRGB(12, 12, 16),
     Panel = Color3.fromRGB(19, 19, 25),
-    Stroke = Color3.fromRGB(34, 35, 43),
+    Stroke = Color3.fromRGB(50, 50, 60),
     Accent = Color3.fromRGB(18, 18, 24),
     AccentHover = Color3.fromRGB(28, 28, 36),
     AccentClick = Color3.fromRGB(36, 36, 44),
@@ -538,9 +538,9 @@ local function MakeTitle(Parent, Text, Color)
         Text = Text,
     })
     Create("UIPadding", {
-        PaddingTop = UDim.new(0, 2),
+        PaddingTop = UDim.new(0, 6),
         PaddingLeft = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 1),
+        PaddingBottom = UDim.new(0, 4),
         Parent = Label,
     })
     return Label
@@ -560,9 +560,9 @@ local function MakeDescription(Parent, Text)
         Size = UDim2.new(1, -55, 0, 0),
         AutomaticSize = Enum.AutomaticSize.Y,
         Text = Text,
-        Position = UDim2.new(0, 0, 0, 18),
+        Position = UDim2.new(0, 0, 0, 24),
     })
-    Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 2), Parent = Label })
+    Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 8), Parent = Label })
     return Label
 end
 
@@ -575,7 +575,7 @@ local function BuildGroupbox(Tab, Name)
         AutomaticSize = Enum.AutomaticSize.Y,
         Size = UDim2.new(1, 0, 0, 0),
     })
-    Create("UIStroke", { Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Box })
+    Create("UIStroke", { Thickness = 1.5, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Box })
     Create("UICorner", { CornerRadius = UDim.new(0, 1), Parent = Box })
     Create("UIPadding", { PaddingBottom = UDim.new(0, 5), Parent = Box })
 
@@ -1394,7 +1394,7 @@ function Groupbox:AddSlider(Flag, Options)
     local Suffix = Options.Suffix or ""
     local HasDesc = Options.Description ~= nil
 
-    local Holder = MakeHolder(self.Container, HasDesc and nil or 32)
+    local Holder = MakeHolder(self.Container, HasDesc and nil or 38)
     Holder.AutomaticSize = HasDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None
 
     HookTooltip(Holder, Options)
@@ -1410,7 +1410,7 @@ function Groupbox:AddSlider(Flag, Options)
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = Options.Text or "Slider",
     })
-    Create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 1), Parent = Title })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 4), Parent = Title })
 
     local Track = Create("Frame", {
         Name = "Track",
@@ -1419,7 +1419,7 @@ function Groupbox:AddSlider(Flag, Options)
         BackgroundColor3 = Theme.SliderTrack,
         AnchorPoint = HasDesc and Vector2.new(0.5, 0) or Vector2.new(0.5, 1),
         Size = UDim2.new(1, -20, 0, 5),
-        Position = HasDesc and UDim2.new(0.5, 0, 0, 28) or UDim2.new(0.5, 0, 1, -4),
+        Position = HasDesc and UDim2.new(0.5, 0, 0, 35) or UDim2.new(0.5, 0, 1, -5),
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Track })
     Create("UIStroke", { Color = Theme.SliderStroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Track })
@@ -1456,14 +1456,14 @@ function Groupbox:AddSlider(Flag, Options)
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = "0",
         ClearTextOnFocus = true,
-        Position = UDim2.new(1, -8, 1, -12),
+        Position = UDim2.new(1, -8, 1, -15),
     })
 
     if HasDesc then
         local Desc = MakeDescription(Holder, Options.Description)
-        Desc.Position = UDim2.new(0, 0, 0, 38)
+        Desc.Position = UDim2.new(0, 0, 0, 45)
         ValueLabel.AnchorPoint = Vector2.new(1, 0)
-        ValueLabel.Position = UDim2.new(1, -8, 0, 5)
+        ValueLabel.Position = UDim2.new(1, -8, 0, 8)
     end
 
     local Slider = {}
@@ -1725,7 +1725,7 @@ function Groupbox:AddLabel(Text, Color)
         Size = UDim2.new(1, -20, 0, 0),
         Text = Text or "",
     })
-    Create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 1), Parent = Label })
+    Create("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingLeft = UDim.new(0, 10), PaddingBottom = UDim.new(0, 4), Parent = Label })
 
     local LabelObj = {}
     LabelObj.Type = "Label"
