@@ -255,6 +255,9 @@ local function ResolveVideo(Path)
         end)
         Path = File
     end
+    pcall(function()
+        if enablelocalvideo then enablelocalvideo(true) end
+    end)
     local Ok, Asset = pcall(getcustomasset, Path)
     return Ok and Asset or nil
 end
