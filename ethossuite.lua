@@ -234,12 +234,27 @@ local function SafeCall(Callback, ...)
     end
 end
 
-local TooltipGui, TipImage, TipTitle, TipDesc
+local TooltipGui, TipImage, TipVideo, TipTitle, TipDesc
 local TipToken = 0
 
 local function ResolveAsset(Path)
     if not Path or Path == "" then return nil end
     if Path:match("^rbxassetid://") then return Path end
+    local Ok, Asset = pcall(getcustomasset, Path)
+    return Ok and Asset or nil
+end
+
+local function ResolveVideo(Path)
+    if not Path or Path == "" then return nil end
+    if Path:match("^https?://") then
+        local File = "ZeroHub/tip_" .. Path:match("[^/]+$")
+        pcall(function()
+            if not isfile(File) then
+                writefile(File, game:HttpGet(Path))
+            end
+        end)
+        Path = File
+    end
     local Ok, Asset = pcall(getcustomasset, Path)
     return Ok and Asset or nil
 end
@@ -267,6 +282,13 @@ local function BuildTooltip()
         ScaleType = Enum.ScaleType.Crop, Visible = false, ZIndex = 201,
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TipImage })
+
+    TipVideo = Create("VideoFrame", {
+        Name = "Video", Parent = TooltipGui, LayoutOrder = 1, BorderSizePixel = 0,
+        BackgroundColor3 = Theme.Background, Size = UDim2.new(1, 0, 0, 140),
+        Looped = true, Playing = false, Volume = 0, Visible = false, ZIndex = 201,
+    })
+    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TipVideo })
 
     local Inner = Create("Frame", {
         Name = "Inner", Parent = TooltipGui, LayoutOrder = 2, BorderSizePixel = 0,
@@ -304,9 +326,24 @@ local function ShowTooltip(Element, Opts)
     TipDesc.Text = Opts.TooltipDesc or Opts.Description or ""
     TipDesc.Visible = TipDesc.Text ~= ""
 
+    local Vid = ResolveVideo(Opts.TooltipVideo)
     local Img = ResolveAsset(Opts.TooltipImage)
-    TipImage.Image = Img or ""
-    TipImage.Visible = Img ~= nil
+
+    if Vid then
+        TipVideo.Video = Vid
+        TipVideo.Visible = true
+        TipVideo.Playing = true
+        TipImage.Visible = false
+    elseif Img then
+        TipImage.Image = Img
+        TipImage.Visible = true
+        TipVideo.Visible = false
+        TipVideo.Playing = false
+    else
+        TipImage.Visible = false
+        TipVideo.Visible = false
+        TipVideo.Playing = false
+    end
 
     local Pos = Element.AbsolutePosition
     local Sz = Element.AbsoluteSize
@@ -325,6 +362,7 @@ local function HideTooltip()
     if not TooltipGui then return end
     TipToken = TipToken + 1
     local Token = TipToken
+    if TipVideo then TipVideo.Playing = false end
     task.delay(0.06, function()
         if TipToken ~= Token then return end
         Tween(TooltipGui, { GroupTransparency = 1 }, 0.12)
@@ -337,7 +375,7 @@ local function HideTooltip()
 end
 
 local function HookTooltip(Holder, Opts)
-    if not Opts.TooltipImage and not Opts.TooltipDesc and not Opts.Description then return end
+    if not Opts.TooltipImage and not Opts.TooltipVideo and not Opts.TooltipDesc and not Opts.Description then return end
     Holder.MouseEnter:Connect(function() ShowTooltip(Holder, Opts) end)
     Holder.MouseLeave:Connect(function() HideTooltip() end)
 end
