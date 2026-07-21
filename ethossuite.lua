@@ -255,11 +255,13 @@ local function ResolveVideo(Path)
         end)
         Path = File
     end
+    if not isfile(Path) then return nil end
     pcall(function()
         if enablelocalvideo then enablelocalvideo(true) end
     end)
     local Ok, Asset = pcall(getcustomasset, Path)
-    return Ok and Asset or nil
+    if Ok and Asset then return Asset end
+    return "rbxasset://" .. Path
 end
 
 local function BuildTooltip()
@@ -335,8 +337,10 @@ local function ShowTooltip(Element, Opts)
     if Vid then
         TipVideo.Video = Vid
         TipVideo.Visible = true
-        TipVideo.Playing = true
         TipImage.Visible = false
+        task.defer(function()
+            TipVideo.Playing = true
+        end)
     elseif Img then
         TipImage.Image = Img
         TipImage.Visible = true
