@@ -234,6 +234,23 @@ local function SafeCall(Callback, ...)
     end
 end
 
+local ShadowSupported = pcall(function() Instance.new("UIShadow"):Destroy() end)
+
+local function MakeShadow(Parent, Props)
+    if not ShadowSupported then return nil end
+    Props = Props or {}
+    local Ok, Shadow = pcall(function()
+        local S = Instance.new("UIShadow")
+        S.Color = Props.Color or Color3.fromRGB(0, 0, 0)
+        S.Offset = Props.Offset or Vector2.new(0, 2)
+        S.Size = Props.Size or 8
+        S.Transparency = Props.Transparency or 0.6
+        S.Parent = Parent
+        return S
+    end)
+    return Ok and Shadow or nil
+end
+
 local TooltipGui, TipImage, TipTitle, TipDesc
 local TipToken = 0
 
@@ -260,6 +277,7 @@ local function BuildTooltip()
     Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = TooltipGui })
     Create("UIStroke", { Thickness = 1.5, Color = Theme.TooltipBorder, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = TooltipGui })
     Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Parent = TooltipGui })
+    MakeShadow(TooltipGui, { Color = Color3.fromRGB(160, 160, 190), Size = 12, Transparency = 0.6, Offset = Vector2.new(0, 0) })
 
     TipImage = Create("ImageLabel", {
         Name = "Image", Parent = TooltipGui, LayoutOrder = 1, BorderSizePixel = 0,
@@ -570,6 +588,7 @@ local function BuildGroupbox(Tab, Name)
     Create("UIStroke", { Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Box })
     Create("UICorner", { CornerRadius = UDim.new(0, 1), Parent = Box })
     Create("UIPadding", { PaddingBottom = UDim.new(0, 5), Parent = Box })
+    MakeShadow(Box, { Color = Color3.fromRGB(140, 140, 170), Size = 8, Transparency = 0.82, Offset = Vector2.new(0, 0) })
 
     local Title = Create("TextLabel", {
         Name = "GroupboxTitle",
@@ -673,6 +692,7 @@ function Library:CreateWindow(Config)
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = Main })
     Create("UIStroke", { Transparency = 0.5, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Theme.Stroke, Parent = Main })
+    MakeShadow(Main, { Color = Color3.fromRGB(180, 180, 200), Size = 20, Transparency = 0.7, Offset = Vector2.new(0, 0) })
 
     if Settings.DragImage then
         RegisterFadesEnabled = false
@@ -1275,6 +1295,7 @@ function Groupbox:AddToggle(Flag, Options)
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = Checkmark })
     local BoxStroke = Create("UIStroke", { Thickness = 1.3, Color = Theme.ElementStroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Checkmark })
+    local CheckShadow = MakeShadow(Checkmark, { Color = Color3.fromRGB(200, 200, 220), Size = 4, Transparency = 1, Offset = Vector2.new(0, 0) })
 
     local Glow = Create("Frame", {
         Name = "Glow",
@@ -1328,12 +1349,14 @@ function Groupbox:AddToggle(Flag, Options)
             Tween(Tick, { ImageTransparency = 0 }, 0.15)
             Tween(GlowStroke, { Transparency = 0, Color = Theme.AccentText }, 0.15)
             Tween(Title, { TextColor3 = Theme.Title }, 0.15)
+            if CheckShadow then pcall(function() Tween(CheckShadow, { Transparency = 0.3, Size = 12 }, 0.2) end) end
         else
             Tween(Checkmark, { BackgroundColor3 = Theme.ElementBackground }, 0.15)
             Tween(BoxStroke, { Transparency = 0, Color = Theme.ElementStroke, Thickness = 1.3 }, 0.15)
             Tween(Tick, { ImageTransparency = 1 }, 0.15)
             Tween(GlowStroke, { Transparency = 1 }, 0.15)
             Tween(Title, { TextColor3 = Theme.Text }, 0.15)
+            if CheckShadow then pcall(function() Tween(CheckShadow, { Transparency = 1, Size = 4 }, 0.2) end) end
         end
     end
 
@@ -1435,6 +1458,7 @@ function Groupbox:AddSlider(Flag, Options)
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Knob })
     Create("UIStroke", { Thickness = 1, Color = Color3.fromRGB(60, 60, 72), Transparency = 0.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Knob })
+    MakeShadow(Knob, { Color = Color3.fromRGB(220, 220, 240), Size = 8, Transparency = 0.5, Offset = Vector2.new(0, 0) })
 
     local ValueLabel = Create("TextBox", {
         Name = "ValueLabel",
@@ -1559,6 +1583,7 @@ function Groupbox:AddButton(Options)
     Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = ButtonFrame })
     local StrokeColor = Options.Color or Theme.ButtonDefaultStroke
     local ButtonStroke = Create("UIStroke", { Color = StrokeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = ButtonFrame })
+    MakeShadow(ButtonFrame, { Color = Color3.fromRGB(160, 160, 190), Size = 6, Transparency = 0.8, Offset = Vector2.new(0, 0) })
 
     local Click = Create("TextButton", {
         Parent = ButtonFrame,
@@ -1777,6 +1802,7 @@ function Groupbox:AddDropdown(Flag, Options)
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = Control })
     Create("UIStroke", { Color = Theme.ElementStroke, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Control })
+    MakeShadow(Control, { Color = Color3.fromRGB(140, 140, 170), Size = 5, Transparency = 0.82, Offset = Vector2.new(0, 0) })
 
     local ArrowImage = Create("ImageLabel", {
         Name = "DropdownArrows",
@@ -1886,13 +1912,15 @@ function Groupbox:AddDropdown(Flag, Options)
             ClosePopup()
         end)
 
+        local ItemCount = #Dropdown.Values
+        local PopupHeight = math.min(ItemCount * 24 + 12 + (ItemCount >= 8 and 30 or 0), 220)
         Popup = Create("ScrollingFrame", {
             Name = "OpenDropdown",
             Parent = self.Window.Screen,
             Active = true,
             BorderSizePixel = 0,
             BackgroundColor3 = Theme.ElementBackground,
-            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, math.min(#Dropdown.Values * 24 + 12 + (#Dropdown.Values >= 8 and 30 or 0), 220)),
+            Size = UDim2.new(0, Control.AbsoluteSize.X, 0, PopupHeight),
             Position = UDim2.fromOffset(
                 Control.AbsolutePosition.X + Settings.DropdownMenuOffset.X,
                 Control.AbsolutePosition.Y + Control.AbsoluteSize.Y + Settings.DropdownMenuOffset.Y
@@ -1909,7 +1937,7 @@ function Groupbox:AddDropdown(Flag, Options)
         Create("UIPadding", { PaddingTop = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4), Parent = Popup })
 
         local SearchBox
-        if #Dropdown.Values >= 8 then
+        if ItemCount >= 8 then
             local SearchHolder = Create("Frame", {
                 Name = "SearchHolder", Parent = Popup, LayoutOrder = 0,
                 BorderSizePixel = 0, BackgroundTransparency = 1,
@@ -2802,6 +2830,7 @@ function Library:Notify(Options)
     Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = Gui })
     Create("UIStroke", { Transparency = 0.5, Thickness = 1.5, Color = Color3.fromRGB(50, 50, 66), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = Gui })
     Create("UISizeConstraint", { MinSize = Vector2.new(270, 46), Parent = Gui })
+    MakeShadow(Gui, { Color = Color3.fromRGB(160, 160, 190), Size = 14, Transparency = 0.6, Offset = Vector2.new(0, 0) })
 
     Create("ImageLabel", {
         Name = "Icon",
